@@ -149,7 +149,7 @@ collections:
 
 defaults:
   - scope:
-      path: "assets/img"
+      path: assets/img/favicons
     values:
       image: true
   - scope:
