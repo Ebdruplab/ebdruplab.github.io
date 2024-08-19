@@ -27,6 +27,128 @@ Easy to find and commonly used clauses:
 {{ Ifidontexistwriteanothervariable | default(othervar) }}
 
 ```
+
+## Template .j2 file
+
+1. Set a var in a jinja template based on host fact:
+
+```yaml
+mysql_max_connections: "{{ (ansible_memtotal_mb // 12) | int }}"
+```
+
+2. A If something is true clause, or just check for defined
+
+```yaml
+{% if mysql_slow_query_log_enabled %}
+slow_query_log = 1
+slow_query_log_file = {{ mysql_slow_query_log_file }}
+long_query_time = {{ mysql_slow_query_time }}
+{% endif %}
+
+# or if check it is there or not
+# Ansible Jinja2 if variable is defined ( where variable is defined)
+{% if example_variable is defined -%}
+        example_variable is defined              
+{% else -%}
+        example_variable is not defined
+{% endif %}
+```
+
+3. Jinja2 filters
+
+```yaml
+# Ansible Jinja2 for filters 
+# min value    
+{{ [1,2,3,4,5] | min }}
+
+# max value
+{{ [1,2,3,4,5] | max }}
+
+ # unique [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]
+{{ [1, 1, 2, 2, 3, 3, 4, 4, 5, 5] | unique }}
+
+ # difference [1, 2, 3, 4, 5] vs [2, 3, 4, 5]
+{{ [1, 2, 3, 4, 5] | difference([2, 3, 4]) }}
+
+ # random['rob', 'jane', 'freddy']
+{{ ['rob', 'jane', 'freddy'] | random }}
+```
+
+4. A template.j2 with a lot of diffrent options
+
+```yaml
+# Jinja2 template if statement
+
+{% if ansible_hostname == "examplehost2" -%}
+    This is {{ ansible_hostname }} host
+{% endif %}
+
+# Ansible Jinja2 if elif statement
+
+{% if ansible_hostname == "examplehost2" -%}
+     This is {{ ansible_hostname }} host
+{% elif ansible_hostname == "examplehost3" -%}
+     This is {{ ansible_hostname }} host with modifications
+{% endif %}
+
+# Ansible Jinja2 if elif else statement
+
+{% if ansible_hostname == "examplehost2" -%}
+      This is {{ ansible_hostname }} host
+{% elif ansible_hostname == "examplehost3" -%}
+      This is {{ ansible_hostname }}  host with modifications
+{% else -%}
+      This is default {{ ansible_hostname }} host
+{% endif %}
+
+# Ansible Jinja2 if variable is defined ( where variable is not defined)
+
+{% if example_variable is defined -%}
+      example_variable is defined
+{% else -%}
+      example_variable is not defined
+{% endif %}
+
+# Ansible Jinja2 if variable is defined ( where variable is defined)
+
+{% set example_variable = 'defined' -%}
+     {% if example_variable is defined -%}
+          example_variable is defined
+     {% else -%}
+          example_variable is not defined
+{% endif %}
+
+# Ansible Jinja2 for loop
+
+{% for entry in ansible_all_ipv4_addresses -%}
+     IP Address entry {{ loop.index }} - {{ entry }}
+{% endfor %}
+
+# Ansible Jinja2 for range
+
+{% for entry in range(1, 11) -%}
+     {{ entry }}
+{% endfor %}
+
+# Ansible Jinja2 for range , reversed(simulate while greater 5)
+
+{% for entry in range(10, 0, -1) -%}
+   {% if entry == 5 -%}
+      {% break %}
+   {% endif -%}
+   {{ entry }}
+{% endfor %}
+
+# Ansible Jinja2 for range , reversed(continue if odd)
+
+{% for entry in range(10, 0, -1) -%}
+   {% if entry is odd -%}
+      {% continue %}
+   {% endif -%}
+   {{ entry }}
+{% endfor %}
+```
+
 ## Lesser Known Features
 More obscure yet highly useful features for complex data handling:
 
