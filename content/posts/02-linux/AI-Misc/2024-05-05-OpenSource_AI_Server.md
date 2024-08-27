@@ -1,6 +1,7 @@
 ---
 title: OpenSource AI Server
 author: Kristian
+weight: 14
 date: 2024-05-05
 categories: [Guide, OpenSource]
 tags: [it, AI]
