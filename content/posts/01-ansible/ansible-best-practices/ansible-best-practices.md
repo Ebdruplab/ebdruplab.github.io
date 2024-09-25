@@ -12,6 +12,19 @@ date: 2024-04-14
 # Ansible Practices and help
 This file should provide you with help on how to use my Ansible init scripts. Also I will provide you with info on my best practices, knowhows and nice to have stuff. On your automation journey.
 
+## Ansible Helpers
+
+### Playbook Execution order
+
+Execution order is:
+
+1. pre_tasks
+2. roles
+3. tasks
+4. post_tasks
+
+A playbook file can be composed of one or more `plays`.
+
 ## Ansible Repository Initialization Guide
 
 This guide provides detailed instructions on how to use the `initialize_ansible_repo.sh` script to set up a new Ansible repository with a predefined directory structure and configuration. It also includes guidelines for developing within the playbook.
