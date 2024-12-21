@@ -30,8 +30,9 @@ Welcome to my collection of IT projects and resources. Below, you'll find a comp
 ![Ebdruplab Image](img/artboard13.png)
 ## Blog Posts
 ### ansible
-  - [Ansible Jinja Helpers](/posts/01-ansible/ansible-jinja2/ansible/)
-  - [Ansible Best Practices and help](/posts/01-ansible/ansible-best-practices/ansible/)
+  - [Ansible Jinja Helpers](/posts/01-ansible/ansible-jinja2/Ansible-Jinja2.md)
+  - [Ansible Best Practices and help](/posts/01-ansible/ansible-best-practices/ansible-best-practices.md)
+  - [Ansible helpers](/posts/01-ansible/ansible-best-practices/ansible-helper.md)
   
 ### linux
   - [OpenSource AI Server](/posts/02-linux/ai-misc/2024-05-05-opensource_ai_server/)
