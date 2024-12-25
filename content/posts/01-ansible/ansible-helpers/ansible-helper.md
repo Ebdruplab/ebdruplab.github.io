@@ -1,5 +1,5 @@
 ---
-title: "Ansible helpers"
+title: "Ansible from Kristian"
 weight: 6
 draft: false
 description: "Ansible helpers, and good to have items, for a enhancement for writing Ansible Playbooks. Assistance to Ansible Automation Platform 2"

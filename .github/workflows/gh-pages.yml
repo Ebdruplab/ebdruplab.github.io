@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3  # Updated to v3 for potential Node.js 20 support
+        uses: peaceiris/actions-hugo@v3.0.0  # Updated to v3 for potential Node.js 20 support
         with:
           hugo-version: "latest"
 
