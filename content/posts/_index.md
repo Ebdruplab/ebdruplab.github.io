@@ -31,7 +31,7 @@ Welcome to my collection of IT projects and resources. Below, you'll find a comp
 ## Blog Posts
 ### ansible
   - [Ansible Jinja Helpers](/posts/01-ansible/ansible-jinja2/Ansible-Jinja2.md)
-  - [Ansible Best Practices and help](/posts/01-ansible/ansible-best-practices/ansible-best-practices.md)
+  - [Ansible Helper Scripts](/posts/01-ansible/ansible_scripts/Ansible_helper_scripts.md)
   - [The Ultimate Guide to Writing Better Ansible Code](/posts/01-ansible/ansible-best-practices/Better_Ansible_Code.md)
   
 ### linux

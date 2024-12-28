@@ -1,5 +1,5 @@
 ---
-title: "Ansible Best Practices and help"
+title: "Ansible helper scripts"
 weight: 5
 draft: false
 description: "Ansible best practices from Kristian's perspective. Corrulated from information gathered from a lot of different projects"
@@ -9,21 +9,7 @@ tags: ["ansible", "scripts", "automation", "Notes"]
 date: 2024-04-14
 #showSummary: true
 ---
-# Ansible Practices and help
-This file should provide you with help on how to use my Ansible init scripts. Also I will provide you with info on my best practices, knowhows and nice to have stuff. On your automation journey.
-
-## Ansible Helpers
-
-### Playbook Execution order
-
-Execution order is:
-
-1. pre_tasks
-2. roles
-3. tasks
-4. post_tasks
-
-A playbook file can be composed of one or more `plays`.
+This file should provide you with help on how to use my Ansible init scripts.
 
 ## Ansible Repository Initialization Guide
 
