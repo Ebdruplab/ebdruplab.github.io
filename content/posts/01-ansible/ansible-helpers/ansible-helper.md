@@ -6,7 +6,7 @@ description: "Ansible helpers, and good to have items, for a enhancement for wri
 slug: "ansible_automation"
 #summary:
 tags: ["ansible", "inventory", "AAP2", "Commandline"]
-date: 2024-04-14
+date: 2024-12-25
 #showSummary: true
 ---
 
