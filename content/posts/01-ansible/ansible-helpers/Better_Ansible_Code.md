@@ -16,7 +16,7 @@ At the right site on this post you can find diffrent sections, you can also just
 ## Core concepts
 
 ### Ansible Helper script
-see [Ansible Helper Scripts](../../../posts/01-ansible/ansible_scripts/Ansible_helper_scripts.md) for a custom script on how I will init a Ansible Repository.
+See [Ansible Helper Scripts](https://ebdruplab.dk/posts/01-ansible/ansible_scripts/ansible/) for a custom script on how I will init a Ansible Repository.
 
 ### Playbook Execution order
 
