@@ -76,41 +76,83 @@ app_secret: "08v09180n18v12n830"
 
 This setup loads the `target_env` from the `group` `appservers`, and then using this to load the vaulted files in `vars` using the `vars_files`.
 
+### Assertions for Roles
+When creating roles/collections/playbooks it might be beneficial to have something that checks if the variable used in the play are present.  
+Here is an example on this:
+```yaml
+- name: 'Assert that required variables are defined'
+  ansible.builtin.assert:
+    that:
+      - ebdruplab_rolename_service_name is defined
+    fail_msg: "Required variables are not all defined. Please check them"
+
+- name: 'Example to check for sub items in a variable'
+  ansible.builtin.assert:
+    that:
+      - ebdruplab_rolename_subvar.script_location is defined
+    fail_msg: "ebdruplab_rolename_subvar is not correctly defined. Ensure script_location are set."
+
+- name: 'Example on check if supported OS is used'
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family in ['RedHat', 'Debian']
+    fail_msg: "This role only supports Debian or RedHat OS families."
+```
+
+Example on loading this assert.yml in the main.yml file (roles specific):
+```yaml
+- name: 'Import assert.yml'
+  ansible.builtin.include_tasks: assert.yml
+  ```
+
 ### Jinja2 Templating Cheat Sheet for Ansible
 
 #### 1. **Iterating Over a List**
 
-**Example**: Generating a list of users for a configuration file.
+**Example**: Generating a list of patches from doing patches, this is from my patch playbook
 
 ```jinja
-{% for user in users %}
-- Username: {{ user.name }}
-  UID: {{ user.uid }}
-  Shell: {{ user.shell | default('/bin/bash') }}
-{% endfor %}
+<ul>
+        {% if hostvars[linux_host].patchingresult is defined and hostvars[linux_host].patchingresult != 'Compliant' %}
+        {% for line in
+        hostvars[linux_host].patchingresult %}
+        <li> {{ line }} </li>
+        {% endfor %}
+        {% elif
+        hostvars[linux_host].patchingresultdnf.changed|default("false", true) ==
+        true %}
+        {% for packagename in
+        hostvars[linux_host].patchingresultdnf.results|sort %}
+        <li> {{ packagename }} </li>
+        {% endfor %}
+        {% elif hostvars[linux_host].patchingresultdnf.changed|default("false",
+        true)
+        == true %}
+        <li> Patching Failed </li>
+        {% elif hostvars[linux_host].patchingresult.changed |default("false",
+        true) == true %}
+        <li> Patching Failed </li>
+        {% else %}
+        <li> Compliant </li>
+        {% endif %}
+</ul>
 ```
 
 **Practical Use in Ansible**:
+Its used to generate a HTML report of patched machines. The variables are saved from the different results within the playbook example:
+
 ```yaml
-users:
-  - name: alice
-    uid: 1001
-    shell: /bin/zsh
-  - name: bob
-    uid: 1002
+- name: 'Upgrade all packages (dnf)'
+  ansible.builtin.dnf:
+    name: '*'
+    state: latest
+    exclude: "{{ patch_management_exclude_packages }}"
+    update_only: true
+  when: ansible_pkg_mgr == "dnf"
+  become: true
+  register: patchingresultdnf
 ```
-
-**Rendered Output**:
-```yaml
-- Username: alice
-  UID: 1001
-  Shell: /bin/zsh
-- Username: bob
-  UID: 1002
-  Shell: /bin/bash
-```
-
-
+Then there is something for generating the report. But that isn't included in this example.
 
 #### 2. **Using Default Values**
 
@@ -139,71 +181,25 @@ database:
 
 #### 3. **Conditionals**
 
-**Example**: Enabling SSL configuration based on a variable.
+**Example**: Coditional items for a config file (keepalived)
 
 ```jinja
-{% if enable_ssl %}
-ssl_certificate: {{ ssl_cert_path | default('/etc/ssl/cert.pem') }}
-ssl_certificate_key: {{ ssl_key_path | default('/etc/ssl/key.pem') }}
-{% else %}
-# SSL is disabled
-{% endif %}
+    {% if ebdruplab_keepalived_unicast %}
+        {% if ebdruplab_keepalived_config['keepalived_state'] == 'BACKUP' %}
+        unicast_src_ip {{ ebdruplab_keepalived_backup_ip }}
+        unicast_peer {
+            {{ ebdruplab_keepalived_primary_ip }}
+        }
+        {% elif ebdruplab_keepalived_config['keepalived_state'] == 'MASTER' %}
+        unicast_src_ip {{ ebdruplab_keepalived_primary_ip }}
+        unicast_peer {
+            {{ ebdruplab_keepalived_backup_ip }}
+        }
+        {% endif %}
+    {% endif %}
 ```
 
-**Practical Use in Ansible**:
-```yaml
-enable_ssl: true
-ssl_cert_path: /etc/ssl/custom_cert.pem
-```
-
-**Rendered Output**:
-```yaml
-ssl_certificate: /etc/ssl/custom_cert.pem
-ssl_certificate_key: /etc/ssl/key.pem
-```
-
-
-
-#### 4. **Rendering Complex Data**
-
-**Example**: Iterating through nested dictionaries.
-
-```jinja
-{% for service, config in services.items() %}
-- Service: {{ service }}
-  State: {{ config.state }}
-  Ports:
-    {% for port in config.ports %}
-    - {{ port }}
-    {% endfor %}
-{% endfor %}
-```
-
-**Practical Use in Ansible**:
-```yaml
-services:
-  httpd:
-    state: running
-    ports: [80, 443]
-  redis:
-    state: stopped
-    ports: [6379]
-```
-
-**Rendered Output**:
-```yaml
-- Service: httpd
-  State: running
-  Ports:
-    - 80
-    - 443
-- Service: redis
-  State: stopped
-  Ports:
-    - 6379
-```
-
-#### 5. **Combining Variables Dynamically**
+#### 4. **Combining Variables Dynamically**
 
 **Example**: Concatenating variables to form file paths.
 
@@ -212,6 +208,8 @@ log_path: {{ log_dir }}/{{ service_name }}.log
 ```
 
 **Practical Use in Ansible**:
+Can be used in a variaty of ways e.g within a task or maybe a jinja templating for a script?  
+I have also used it for creating firewall rules.
 ```yaml
 log_dir: /var/log
 service_name: httpd
@@ -220,112 +218,4 @@ service_name: httpd
 **Rendered Output**:
 ```yaml
 log_path: /var/log/httpd.log
-```
-
-#### 6. **Filters for Data Transformation**
-
-**Example**: Converting a list to a comma-separated string.
-
-```jinja
-services: {{ service_list | join(', ') }}
-```
-
-**Practical Use in Ansible**:
-```yaml
-service_list:
-  - httpd
-  - redis
-  - postgresql
-```
-
-**Rendered Output**:
-```yaml
-services: httpd, redis, postgresql
-```
-
-#### 7. **Checking Variable Existence**
-
-**Example**: Safely handle undefined variables.
-
-```jinja
-{% if my_variable is defined %}
-Variable is defined: {{ my_variable }}
-{% else %}
-Variable is not defined.
-{% endif %}
-```
-
-**Practical Use in Ansible**:
-```yaml
-my_variable: "Hello, World!"
-```
-
-**Rendered Output**:
-```yaml
-Variable is defined: Hello, World!
-```
-
-#### 8. **Complex Conditionals**
-
-**Example**: Dynamically choose configuration values.
-
-```jinja
-debug_mode: {{ 'enabled' if environment == 'development' else 'disabled' }}
-```
-
-**Practical Use in Ansible**:
-```yaml
-environment: production
-```
-
-**Rendered Output**:
-```yaml
-debug_mode: disabled
-```
-
-#### 9. **Loop with Index**
-
-**Example**: Adding an index to looped items.
-
-```jinja
-{% for user in users %}
-{{ user.name }}
-{% endfor %}
-```
-
-**Practical Use in Ansible**:
-```yaml
-users:
-  - name: alice
-  - name: bob
-```
-
-**Rendered Output**:
-```text
-alice
-bob
-```
-
-#### 10. **Condition in Loops**
-
-**Example**: Filtering items within a loop.
-
-```jinja
-{% for user in users if user.is_admin %}
-- Admin: {{ user.name }}
-{% endfor %}
-```
-
-**Practical Use in Ansible**:
-```yaml
-users:
-  - name: alice
-    is_admin: true
-  - name: bob
-    is_admin: false
-```
-
-**Rendered Output**:
-```yaml
-- Admin: alice
 ```
